@@ -1,4 +1,4 @@
-use octocrab::{models::Repository, Octocrab, Page, Result};
+use octocrab::{models::Repository, Octocrab, Result};
 use std::{
   collections::{BTreeMap, HashMap},
   fs::OpenOptions,
@@ -10,7 +10,7 @@ const OPEN_ERR: &str = "Unable to open file!";
 const DATA_ERR: &str = "Unable to parse data!";
 
 pub struct Repo {
-  repos: Page<Repository>,
+  repos: Vec<Repository>,
   // repo_lang: String,
   // repo_name: String,
   // repo_owner: String,
@@ -20,14 +20,14 @@ impl Repo {
   #[tokio::main(flavor = "multi_thread", worker_threads = 12)]
   pub async fn new(token: &str) -> Result<Repo> {
     let ocrab = Octocrab::builder().personal_token(token).build()?;
-    // TODO: collect from all pages
-    let repos = ocrab
+    let pages = ocrab
       .current()
       .list_repos_starred_by_authenticated_user()
       .sort("created")
       .per_page(100)
       .send()
       .await?;
+    let repos = ocrab.all_pages(pages).await?;
 
     Ok(Self { repos })
   }
@@ -40,10 +40,11 @@ impl Repo {
         .language
         .as_ref()
         .map_or("N/A".to_string(), |l| l.to_string())
-        .replace('\"', "");
+        .replace('\"', "")
+        .replace(" ", "");
       // TODO: custom formatting
       let form = format!(
-        r#"+ **[{}/{}]({})** `:star: {}`"#,
+        r#"+ **[{}/{}]({})** `{}`"#,
         repo.owner.as_ref().expect(&DATA_ERR).login,
         repo.name,
         repo.html_url.as_ref().expect(&DATA_ERR),
@@ -59,6 +60,7 @@ impl Repo {
     col.into_iter().collect()
   }
 
+  // TODO: compress into a table
   pub fn format_table(&self) -> String {
     let langs: Vec<String> = self.iter_repo().keys().cloned().collect();
 
@@ -66,8 +68,8 @@ impl Repo {
 
     table.push_str("## Table of Contents\n");
 
-    for lang in langs {
-      table.push_str(&format!("  + [{lang}](#{lang})\n"));
+    for (i, lang) in langs.iter().enumerate() {
+      table.push_str(&format!("  {i:>2}. [{lang}](#{lang})\n"));
     }
 
     table

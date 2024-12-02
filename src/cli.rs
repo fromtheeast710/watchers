@@ -8,7 +8,7 @@ pub struct CLI {
   #[arg(short, long)]
   pub token: String,
 
-  #[arg(short, long, default_value = "WATCH.md")]
+  #[arg(short, long, default_value = "README.md")]
   pub file: String,
 
   #[arg(short, long, default_value_t = false)]
