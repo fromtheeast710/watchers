@@ -1,0 +1,13 @@
+[package]
+name = "watchers"
+version = "0.0.0"
+edition = "2021"
+
+[[bin]]
+name = "watchers"
+path = "src/main.rs"
+
+[dependencies]
+octocrab = "0.41.2"
+clap = { version = "4.5.21", features = ["derive"] }
+tokio = { version = "1.40.0", features = ["macros", "rt-multi-thread"] }
