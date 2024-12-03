@@ -28,6 +28,7 @@ impl Repo {
       .send()
       .await?;
     let repos = ocrab.all_pages(pages).await?;
+    // let repo = repos.clone().into_iter().next().expect(&DATA_ERR);
 
     Ok(Self { repos })
   }
@@ -42,15 +43,15 @@ impl Repo {
         .map_or("N/A".to_string(), |l| l.to_string())
         .replace('\"', "")
         .replace(" ", "");
-      // TODO: custom formatting
-      let form = format!(
-        r#"+ **[{}/{}]({})** `{}`"#,
-        repo.owner.as_ref().expect(&DATA_ERR).login,
-        repo.name,
-        repo.html_url.as_ref().expect(&DATA_ERR),
-        repo.stargazers_count.expect(&DATA_ERR),
-      );
+      let owner = &repo.owner.as_ref().expect(&DATA_ERR).login;
+      let name = &repo.name;
+      let star = &repo.stargazers_count.expect(&DATA_ERR);
+      let url = repo.html_url.as_ref().expect(&DATA_ERR);
 
+      // TODO: custom formatting
+      let form = format!(r#"+ **[{owner}/{name}]({url})** `{star}`"#);
+
+      // TODO: move N/A to the end
       col
         .entry(lang)
         .and_modify(|c| c.push(form.clone()))
@@ -60,7 +61,6 @@ impl Repo {
     col.into_iter().collect()
   }
 
-  // TODO: compress into a table
   pub fn format_table(&self) -> String {
     let langs: Vec<String> = self.iter_repo().keys().cloned().collect();
 
@@ -68,8 +68,23 @@ impl Repo {
 
     table.push_str("## Table of Contents\n");
 
-    for (i, lang) in langs.iter().enumerate() {
-      table.push_str(&format!("  {i:>2}. [{lang}](#{lang})\n"));
+    if langs.iter().count() > 9 {
+      for (i, lang) in langs.iter().enumerate() {
+        if i == 4 {
+          table.push_str("|\n|-|-|-|-|\n")
+        }
+
+        if i % 4 == 0 && i != 0 && i != 4 {
+          table.push_str("|\n");
+        }
+
+        table.push_str(&format!("|**{}. [{lang}](#{lang})**", i + 1));
+      }
+      table.push_str("\n");
+    } else {
+      for (i, lang) in langs.iter().enumerate() {
+        table.push_str(&format!("**{}. [{lang}](#{lang})**\n", i + 1))
+      }
     }
 
     table

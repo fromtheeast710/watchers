@@ -14,7 +14,7 @@ pub struct CLI {
   #[arg(short, long, default_value_t = false)]
   pub preview: bool,
 
-  #[arg(short = 'F', long, default_value = "+ **[$name/$owner]($url)** `$star`")]
+  #[arg(short = 'F', long, default_value = "+ **[{owner}/{name}]({url})** `{star}`")]
   pub format: Option<String>,
 
   #[arg(short, long, default_value_t = false)]
