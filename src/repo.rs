@@ -70,16 +70,15 @@ impl Repo {
 
     if langs.iter().count() > 9 {
       for (i, lang) in langs.iter().enumerate() {
-        if i == 4 {
-          table.push_str("|\n|-|-|-|-|\n")
-        }
-
-        if i % 4 == 0 && i != 0 && i != 4 {
-          table.push_str("|\n");
+        match i {
+          4 => table.push_str("|\n|-|-|-|-|\n"),
+          _ if (i % 4 == 0 && i != 0 && i != 4) => table.push_str("|\n"),
+          _ => {}
         }
 
         table.push_str(&format!("|**{}. [{lang}](#{lang})**", i + 1));
       }
+
       table.push_str("\n");
     } else {
       for (i, lang) in langs.iter().enumerate() {
