@@ -14,8 +14,15 @@ pub struct CLI {
   #[arg(short, long, default_value_t = false)]
   pub preview: bool,
 
-  #[arg(short = 'F', long, default_value = "+ **[{owner}/{name}]({url})** `{star}`")]
-  pub format: Option<String>,
+  #[arg(
+    short = 'F',
+    long,
+    default_value = r#"+ **[{owner}/{name}]({url})** `⭐ {star}`"#
+  )]
+  pub format: String,
+
+  // #[arg(short = 'w', long, default_value_t = false)]
+  // pub following: bool,
 
   #[arg(short, long, default_value_t = false)]
   pub content_table: bool,

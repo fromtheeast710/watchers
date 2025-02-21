@@ -1,6 +1,6 @@
 # run the program
 r *ARG:
-  cargo run -- {{ARG}}
+  cargo run -- -p {{ARG}} --token=$GITHUB_TOKEN
 
 # cargo build release binary
 cb:

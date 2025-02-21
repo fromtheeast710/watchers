@@ -5,7 +5,7 @@ mod repo;
 
 fn main() {
   let cli = cli::CLI::parse();
-  let repo = repo::Repo::new(&cli.token).expect("Error");
+  let repo = repo::Repo::new(&cli.token, cli.format).expect("Error");
 
   if cli.preview {
     repo.preview(cli.content_table);
